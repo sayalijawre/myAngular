@@ -122,7 +122,7 @@ db.employees.aggregate([{$group:{_id:"$gender",count:{$sum:1}}}]) 	//group by ge
 
 db.employees.aggregate([{$match:{gender:"female"}},{$group:{_id:"$gender",count:{$sum:1}}}])	//only for female
 ***thus match is a pipeline operator**********************************
-db.employees.aggregate([{$group:{_id:"$gender",count:{$sum:1}}},{$limit:3}]) //limit also acts as pipeline operator
+db.employees.aggrega	te([{$group:{_id:"$gender",count:{$sum:1}}},{$limit:3}]) //limit also acts as pipeline operator
 
 UNWIND	//spreads the array entries **ONLY FOR ARRAYS**********
 db.employees.aggregate([{$unwind:"$contacts"}]).pretty();
@@ -149,6 +149,8 @@ db.employees.getIndexes()
 CREATING INDEX :SINGLE FIELD
 db.employees.ensureIndex({age:1})
 
+_id_=>default index
+
 db.createCollection("ProductCollection");
 
 db.runCommand({"distinct":"employees","key":"firstname"})		//finds distinct firstname using $distinct
@@ -156,7 +158,39 @@ db.runCommand({"distinct":"employees","key":"firstname"})		//finds distinct firs
 db.ProductCollection.ensureIndex({"orderInfo.address.coords":"2d"})
 
 db.ProductCollection.find({"orderInfo.address.coords":{$near:[8,4]}})
+ 
+MULTI FIELD INDEX	//on array so multi index
+db.employees.ensureIndex({"annlGrossSal":1})
 
 TEXT INDEX
+db.employees.ensureIndex({"lastname":"text"})
+
 UNIQUE INDEX
+db.employees.ensureIndex({"firstname":1},{"unique":true})	//no duplicate values will be allowed and if there are... then we will gwt error while creatng index unique
+
 TTL INDEX
+
+sc.exe create MongoDB binPath= "\"C:\Program Files\MongoDB\Server\3.2\mongod.exe" --service --config=\"C:\Program Files\MongoDB\Server\3.2\mongocfg.exe"" DisplayName= "MongoDB" start= "auto"
+
+=================REPLICATION========================================================
+cmd 1
+>mongod.exe --replSet cgRepl --datapath=.........\db --port=27017
+
+cmd2
+>mongod.exe --replSet cgRepl --datapath=.........\db1 --port=27018
+
+cmd3
+>mongod.exe --replSet cgRepl --datapath=.........\db2 --port=27019
+
+cmd4
+>mongo.exe --port=27017
+>rs.initiate();
+>rs.status();
+>use cgdb
+db.employees.find()
+db.employees.insert({some data...})
+
+cmd5
+>mongo.exe --port=27018
+use cgdb
+db.employees.find()
